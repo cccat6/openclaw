@@ -301,6 +301,20 @@ export function normalizeCronJobInput(
     }
   }
 
+  if ("fallbackSessionKey" in base) {
+    const fallbackSessionKey = base.fallbackSessionKey;
+    if (fallbackSessionKey === null) {
+      next.fallbackSessionKey = null;
+    } else if (typeof fallbackSessionKey === "string") {
+      const trimmed = fallbackSessionKey.trim();
+      if (trimmed) {
+        next.fallbackSessionKey = trimmed;
+      } else {
+        delete next.fallbackSessionKey;
+      }
+    }
+  }
+
   if ("enabled" in base) {
     const enabled = base.enabled;
     if (typeof enabled === "boolean") {

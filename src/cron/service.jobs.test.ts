@@ -178,4 +178,29 @@ describe("applyJobPatch", () => {
     ).not.toThrow();
     expect(job.delivery).toEqual({ mode: "webhook", to: "https://example.invalid/trim" });
   });
+
+  it("updates and clears fallbackSessionKey", () => {
+    const now = Date.now();
+    const job: CronJob = {
+      id: "job-fallback-session",
+      name: "job-fallback-session",
+      enabled: true,
+      createdAtMs: now,
+      updatedAtMs: now,
+      schedule: { kind: "every", everyMs: 60_000 },
+      sessionTarget: "isolated",
+      wakeMode: "now",
+      payload: { kind: "agentTurn", message: "do it" },
+      delivery: { mode: "announce", channel: "telegram", to: "123" },
+      state: {},
+    };
+
+    expect(() =>
+      applyJobPatch(job, { fallbackSessionKey: "  agent:main:wecom:dm:alice  " }),
+    ).not.toThrow();
+    expect(job.fallbackSessionKey).toBe("agent:main:wecom:dm:alice");
+
+    expect(() => applyJobPatch(job, { fallbackSessionKey: null })).not.toThrow();
+    expect(job.fallbackSessionKey).toBeUndefined();
+  });
 });

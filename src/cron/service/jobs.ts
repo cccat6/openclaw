@@ -267,6 +267,7 @@ export function nextWakeAtMs(state: CronServiceState) {
 export function createJob(state: CronServiceState, input: CronJobCreate): CronJob {
   const now = state.deps.nowMs();
   const id = crypto.randomUUID();
+  const fallbackSessionKey = normalizeOptionalText(input.fallbackSessionKey);
   const schedule =
     input.schedule.kind === "every"
       ? {
@@ -287,6 +288,7 @@ export function createJob(state: CronServiceState, input: CronJobCreate): CronJo
   const job: CronJob = {
     id,
     agentId: normalizeOptionalAgentId(input.agentId),
+    ...(fallbackSessionKey ? { fallbackSessionKey } : {}),
     name: normalizeRequiredName(input.name),
     description: normalizeOptionalText(input.description),
     enabled,
@@ -355,6 +357,12 @@ export function applyJobPatch(job: CronJob, patch: CronJobPatch) {
   }
   if ("agentId" in patch) {
     job.agentId = normalizeOptionalAgentId((patch as { agentId?: unknown }).agentId);
+  }
+  if ("fallbackSessionKey" in patch) {
+    job.fallbackSessionKey =
+      patch.fallbackSessionKey === null
+        ? undefined
+        : normalizeOptionalText(patch.fallbackSessionKey);
   }
   assertSupportedJobSpec(job);
   assertDeliverySupport(job);

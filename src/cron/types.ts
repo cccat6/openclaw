@@ -68,6 +68,11 @@ export type CronJobState = {
 export type CronJob = {
   id: string;
   agentId?: string;
+  /**
+   * Session key used for in-chat fallback delivery when outbound channel
+   * delivery fails.
+   */
+  fallbackSessionKey?: string;
   name: string;
   description?: string;
   enabled: boolean;
@@ -92,6 +97,7 @@ export type CronJobCreate = Omit<CronJob, "id" | "createdAtMs" | "updatedAtMs" |
 };
 
 export type CronJobPatch = Partial<Omit<CronJob, "id" | "createdAtMs" | "state" | "payload">> & {
+  fallbackSessionKey?: string | null;
   payload?: CronPayloadPatch;
   delivery?: CronDeliveryPatch;
   state?: Partial<CronJobState>;
